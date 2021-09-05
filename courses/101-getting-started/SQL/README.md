@@ -8,7 +8,14 @@ Unfortunately you cannot really run SQL if there is not database to run it again
 
 ### Running the code
 
-In a terminal run `./up.sh` to create the database and open the browser 
-window.
-
 In a terminal run `./up.sh` to create the database and open the browser window.
+
+Log into thee PostgreSQL database with the provided username and password, and try to answer a few questions about the data.
+
+1. How many customers do we have?
+2. Which product sold the most units?
+3. Which month did we sell the most product by dollars in 2021?
+4. Which month did we sell the most product by units in 2021?
+5. What is our most profitable product?
+6. What is our most profitable category?
+7. Which category manager bring in the most dollars?

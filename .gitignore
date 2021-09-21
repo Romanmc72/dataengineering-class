@@ -1,3 +1,8 @@
+# Auto-generated things by vscode or python
 *package.json*
 *__pycache__*
 *.vscode*
+
+# When testing things out myself, I typically create a scratch folder which I
+# do not intend to check into git
+*scratch*

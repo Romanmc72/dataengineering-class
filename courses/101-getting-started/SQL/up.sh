@@ -10,7 +10,7 @@ main() {
     echo "Launching web interface"
     echo "  USERNAME: username"
     echo "  PASSWORD: password"
-    open http://localhost:9000
+    open http://localhost:9000 || echo 'Go to http://localhost:9000 in your browser.'
 }
 
 main

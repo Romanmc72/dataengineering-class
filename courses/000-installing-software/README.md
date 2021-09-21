@@ -4,8 +4,6 @@ This is probably the biggest pain in the ass part of developing. Whenever I inst
 
 ## Need to install
 
-- [Bash](https://itsfoss.com/install-bash-on-windows/) (this should come pre-installed on Mac/Linux, the link here is a windows install guide)
-  - This is for running scripts that take care of lots of other boring commands
 - [Python3](https://www.python.org/downloads/)
   - All programs are written in Python3, find your OS from the list
 - [Docker](https://docs.docker.com/desktop/)

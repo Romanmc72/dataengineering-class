@@ -4,7 +4,7 @@ Hello and welcome to class! My name is Roman Czerwinski and I am here to guide y
 
 ## What is here
 
-Looking at the files in this repository, you will find fully bundled lessons with all of the things packaged to gether that you will need to complete the lesson. I may or may not also have linked some Google Slides that you can flip through as a visual aid. Follow through the different courses in this directory in numerical order and by the end hopefully you will have learned something. If you learn nothing then maybe I am not a great teacher or perhaps yuo already knew all of this.
+Looking at the files in this repository, you will find fully bundled lessons with all of the things packaged together that you will need to complete the lesson. I may or may not also have linked some Google Slides that you can flip through as a visual aid. Follow through the different courses in this directory in numerical order and by the end hopefully you will have learned something. If you learn nothing then maybe I am not a great teacher or perhaps yuo already knew all of this.
 
 ## Disclaimers
 

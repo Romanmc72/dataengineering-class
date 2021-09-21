@@ -4,7 +4,7 @@ Here we come to my favorite and really my first love in programming, SQL. SQL st
 
 ## The Goal Here
 
-Unfortunately you cannot really run SQL if there is not database to run it against. So here we have a few bash scripts. One will launch the database and the other will tear it down. Once the database is up and running you will be provided with a window in your browser to view through which you can write SQL. The database should be pre-populated with some data so we will log in and run a few simple queries to get down the basics of what it is and how it works.
+Unfortunately you cannot really run SQL if there is not a database to run it against (except maybe on [db-fiddle](https://www.db-fiddle.com/)). So here we have a few bash scripts. One will launch the database and the other will tear it down. Once the database is up and running you will be provided with a window in your browser to view through which you can write SQL. The database should be pre-populated with some data so we will log in and run a few simple queries to get down the basics of what it is and how it works.
 
 ### Running the code
 
@@ -14,7 +14,9 @@ Log into the PostgreSQL database with the provided username and password, and tr
 
 In order to actually answer these questions though, you will need to know some SQL!
 
-Click into the database named `app` and then on the lefthand side of the browser window you should be able to see the button for `SQL Command`. Click that and let's dive into some SQL basics!
+Click into the database named `app` and then on the left hand side of the browser window you should be able to see the button for `SQL Command`. Click that and let's dive into some SQL basics!
+
+Run the `./down.sh` script when you're all done to tear down the database.
 
 ### SQL Fundamentals
 
@@ -41,3 +43,24 @@ Here I will focus mostly on the querying and leave the other parts of SQL for an
     - In this case you might need to use a `JOIN` to get the product cost along with the sales.
 6. What is our most profitable category?
 7. Which category manager brought in the most dollars?
+
+
+### Helpful Concepts
+
+#### JOINs
+
+If you are coming from an Excel background and are used to rows, columns, cells, pivot tables, formulas, and `VLOOKUP()`s then you should be able to comfortably translate that conceptual know-how into the world of SQL and relational databases. In a relational database (which is the kind we have here) we have tables. Excel also has a concept of tables, where you can name a column and then refer to it in formulas on other tabs or sheets. With SQL we refer to tables by their names and then the columns of those tables by their names. We do not actually refer to rows explicitly but we can refer to certain columns which may contain unique values or something called a `PRIMARY KEY` which indicates the unique identifier for a particular row that other tables can refer to in their own data.
+
+A `JOIN` in SQL is _kind of_ like a `VLOOKUP()` but there are some key differences. First, here are the similarities:
+
+1. They allow you to pull data from another table into the one you are looking at now
+
+The differences:
+
+1. `VLOOKUP()` will return only the first match (searching top to bottom) whereas a `JOIN` returns any and all matches. When many rows are matched on the `JOIN` condition, it will result in a duplication of rows in your output.
+2. `VLOOKUP()` can only refer to one column as the column to key off of (when you need several usually you `CONCATENATE()` in Excel), but in SQL you can `JOIN` on as many criteria as you want using `AND` as well as `OR` to specify exactly what conditions need to be met.
+3. When `VLOOKUP()` does not find a match in the other table, then you get the infamous `#N/A` error in your cell. When a `JOIN` does not find a match, you get to tell it what happens. There are several types of `JOIN`s and it is helpful to think of those in terms of a venn diagram. For a `LEFT JOIN`, if no match is found it returns `NULL` or the empty value. For an `INNER JOIN` (or just the default `JOIN` keyword) then if nothing is matched, then the source table row is omitted entirely from the result set. There are a few other types of `JOIN`s so take a look at them ![here for that venn diagram view](https://www.securesolutions.no/wp-content/uploads/2014/07/joins-1.jpg).
+
+#### Aggregations
+
+Aggregating things in SQL using functions like `SUM()`, `COUNT()`, `MIN()`, `MAX()`, `AVG()`, etc... requires "grouping" in order to be displayed along with the actual values that you are aggregating against. Think of this as working pretty much exactly like a pivot table works, just without the cross-tab capabilities. So if you are getting a `SUM()` of `sales` over certain `dates` values, you can `SUM(sales)` but you cannot simultaneously display the `dates` unless you use the `GROUP BY` to "group" those `sales` aggregates byt the `dates`.

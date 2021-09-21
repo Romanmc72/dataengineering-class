@@ -16,5 +16,5 @@ There are several parts to this section of the course, so I will break it down i
 
 ### Folders
 
-1. Packages
-2. Endpoints
+1. Packages (installing more things)
+2. Endpoints (Actually doing the project)

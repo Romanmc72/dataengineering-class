@@ -159,3 +159,238 @@ curl localhost:5000
 ```
 
 It should give you the "Hello World!" text as well and likewise generate another line on the logs where you launched the API from.
+
+#### Celebrate
+
+You did a good thing. Take a break, you deserve it. Go tell your mom, she will be so proud. I know I am.
+
+#### Moving On
+
+We have a single API endpoint that works, it returns plain text (not JSON) and responds to a `GET` request (though not `POST` or `DELETE` yet). So  let's add the JSON part.
+    
+1. JSON data is supported natively in Python and interfaces very naturally with some of the base data types like strings, floats, lists, dicts and more. For now we will just change the return line so that it spits out the following JSON data:
+
+    ```JSON
+    {
+        "data": ["Hello World!"]
+    }
+    ```
+
+    - To do that we will add a new line importing the JSON library in python:
+
+    ```Python
+    import json
+    ```
+
+    - This is part of the standard library so there is no need to `pip install` anything into the `virtualenv`. It is good practice to place standard library imports before the 3rd part library imports that had to be pip installed.
+    - Then replace the `return` statement with the following:
+
+    ```Python
+    return json.dumps(
+        {
+            "data": ["Hello World!"]
+        }
+    )
+    ```
+
+    - So what this does is takes the native Python objects (the dict, i.e. a `"key" : "value"` pair inside curly braces `{}` and the list inside the square brackets `[]`) and "dumps" it or "serializes" it as a JSON string so that it can be passed to other programs that read JSON data.
+
+    - Now to make these changes take effect on your API you will need to bring down the API (press ctrl+C) then relaunch it (with `flask run`) and see if it works now!
+
+2. Let's add the `POST` capabilities. As opposed to `GET` which gets the data, `POST` is supposed to be used to accept incoming data and do something with it on the server side (your API at `localhost:5000` is the server here). Flask `routes` / endpoints byt default are `GET` only. To add `POST` capabilities we will need to modify the line that says `@app.route('/')` like so:
+
+```Python
+@app.route('/', methods=['GET', 'POST'])
+```
+
+- Presently if you bring down and relaunch the API, nothing has actually changed because you have not "handled" the `POST` request scenario yet. To make a `POST` request though, simply do the following in `curl` on the command line:
+
+```bash
+curl -X POST localhost:5000
+```
+
+3. So let's handle the `POST`! To do that we will import the flask request, then handle each method as we please.
+    - Add this line to the list of imports at the top of the file:
+
+    ```Python
+    from flask import request
+    ```
+
+    - Then inside of the endpoint function we will modify it like so in order to be able to say hi to someone other than "World":
+
+    ```Python
+    @app.route('/', methods=['GET', 'POST'])
+    def my_endpoint():
+        if request.method == 'GET':
+            return json.dumps(
+                {
+                    "data": ["Hello World!"]
+                }
+            )
+        elif request.method == 'POST':
+            return json.dumps(
+                {
+                    "data": [
+                        "Hello World!",
+                        f"Hello {request.data.decode()}!"
+                    ]
+                }
+            )
+    ```
+    - So we just threw in a handler for the scenario where somebody does a `POST` to our API and they throw some data at us. In this case we will add whatever data they pass in as another thing in the JSON payload, and essentially say "Hello {data}!" for whatever the data is. Now hit that endpoint with `curl` like so:
+
+    ```bash
+    curl \
+        -X POST \
+        -H 'Content-Type: text/plain' \
+        -d 'dumbass' \
+        localhost:5000 
+    ```
+
+    - This `curl` is a little different than before. So what was added here were the "Header" for the request specifying what the Flask endpoint should expect our data to contain plain text. That is what `-H 'Content-Type: text/plain'` means. Then teh actual data in our plain text is stored in the `-d` argument `-d 'dumbass'`. So if that works you should see the API return something like so:
+    
+    ```JSON
+    {
+        "data": [
+            "Hello World!",
+            "Hello dumbass!"
+        ]
+    }
+    ```
+
+    - "Hello dumbass!"... Has a nice ring to it. Let's clean up the code a little. Typically if you end up repeating yourself in your code it means you should introduce a variable or a function to control that repeated code all in one place. In this case we are rewriting the data our API spits back twice. Ew. Let's try it this way:
+
+    ```Python
+    @app.route('/', methods=['GET', 'POST'])
+    def my_endpoint():
+        default_response = {
+            "data": ["Hello World!"]
+        }
+        if request.method == 'GET':
+            return json.dumps(default_response)
+        elif request.method == 'POST':
+            default_response['data'].append(f"Hello {request.data.decode()}!")
+            return json.dumps(default_response)
+    ```
+
+    - A little better IMHOP. Now toy around switching between a `GET` and a `POST` request on the `curl` command.
+
+#### Storing the data
+
+Another job well done. A little further to go still. We will be throwing in the `DELETE` request here soon, but if you spent a little time fooling around with your new creation then you might notice that the data you `POST` is not actually being stored for the next `GET` request. So if you posted `-d 'dumbass'` then went and did a `GET` after that, you will notice that `"Hello dumbass!"` is gone. :(
+
+How do we get it to stay? Well, this is where databases typically comes in. However instead of over complicating the setup (because there are a myriad of tutorials out there connecting Flask to whatever database you want) we will cheat and just store the data in memory on the flask webserver.
+
+**Please note** that you should actually never do this in a real API. Typically these API's are launching many parallel instances and people issuing `GET` and `POST` requests are not guaranteed to hit the same thread twice in a row (meaning users of the API will experience the appearance of data loss or other unexpected behavior). As long as you have been warned, we can move forward ;)
+
+So the workaround hack we will use is storing the data in memory on the flask `current_app` configuration. You can set up a bunch of configuration variables for a flask application that can be set as the app starts. Usually you do not change these as the app is running but that is what we will do here. So let's try it out.
+
+1. We need to import another thing, so add this to the list of imports so we can track the context of the current app as it is running:
+
+```Python
+from flask import current_app
+```
+
+2. Then we need to set the default value for this data. Find the line where we initialized the `app` but before we added the endpoint, and right after it add the following:
+
+```Python
+default_response = {
+    "data": ["Hello World!"]
+}
+app.config['state'] = default_response
+```
+
+3. Then inside of our endpoint function we will remove the declaration of `default_response` then replace all other occurrences of `default_response` with `current_app.config['state']`. So we should go from this:
+
+```Python
+@app.route('/', methods=['GET', 'POST'])
+def my_endpoint():
+    default_response = {
+        "data": ["Hello World!"]
+    }
+    if request.method == 'GET':
+        return json.dumps(default_response)
+    elif request.method == 'POST':
+        default_response['data'].append(f"Hello {request.data.decode()}!")
+        return json.dumps(default_response)
+```
+
+To this:
+
+```Python
+@app.route('/', methods=['GET', 'POST'])
+def my_endpoint():
+    if request.method == 'GET':
+        return json.dumps(current_app.config['state'])
+    elif request.method == 'POST':
+        current_app.config['state']['data'].append(
+            f"Hello {request.data.decode()}!"
+        )
+        return json.dumps(current_app.config['state'])
+```
+
+4. Now when you `POST` with some data it should store that data and return it next time along with any other additional data points that you post each time. Try it out with curl for a little and see what it looks like. Alternate between the `GET` and the `POST` requests.
+
+All in all the whole file should look something like this:
+
+```Python
+#!/usr/bin/env python3
+"""
+This is a simple API.
+
+It will support 1 endpoint for GET POST and DELETE requests.
+"""
+import json
+
+from flask import Flask
+from flask import request
+from flask import current_app
+
+app = Flask(__name__)
+default_response = {
+    "data": ["Hello World!"]
+}
+app.config['state'] = default_response
+
+
+@app.route('/', methods=['GET', 'POST'])
+def my_endpoint():
+    if request.method == 'GET':
+        return json.dumps(current_app.config['state'])
+    elif request.method == 'POST':
+        current_app.config['state']['data'].append(f"Hello {request.data.decode()}!")
+        return json.dumps(current_app.config['state'])
+
+
+if __name__ == "__main__":
+    app.run()
+
+```
+
+#### Now the DELETE
+
+Okay so here is where we are now. In some API scenarios the `DELETE` can delete one thing or delete everything on the endpoint. Sometimes there are even different endpoints for different types of deletes. So far you have gone through this tutorial and you have:
+
+1. Built an API from scratch
+2. Added an endpoint to that API
+3. Started and stopped the API between modifications
+4. Handled both `GET` and `POST` requests
+5. Stored data from additional requests
+
+Now it is time for you to figure out this next part... On your own...
+
+You can do it.
+
+Don't be soft.
+
+You got this.
+
+Take a break if you get stuck and honestly Google it. One of if not _the_ most valuable skills to possess is the ability to figure it out on your own through troubleshooting, problem solving, and asking the internet for help. Knowing what to Google is sometimes half the battle. Given what you have done so far, I do not think you should need that much extra help from the internets, but try it out!
+
+Really. Try it out. I am done helping you on this one. Just add the ability for this endpoint to handle `DELETE` requests and to essentially reset itself to where it started if somebody sends a `DELETE` request to the endpoint. The `DELETE` command for curl should work with just this:
+
+```bash
+curl -X DELETE localhost:5000
+```
+
+**GO! YOU GOT THIS!**

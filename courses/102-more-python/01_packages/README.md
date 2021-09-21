@@ -31,7 +31,7 @@ This actually happens a lot and is a problem you have to work with often in Pyth
 
 ## Virtual Env Setup
 
-So there are a lot of way to use virtual environments in python. One way I like doing it is through the `virtualenv-wrapper` which gives you a way to easily do it from the command line without worrying about a bunch of files clogging up your projects.
+So there are a lot of ways to use virtual environments in python. One way I like doing it is through the `virtualenv-wrapper` which gives you a way to easily do it from the command line without worrying about a bunch of files clogging up your projects.
 
 ### Installing More Software (yay)
 
